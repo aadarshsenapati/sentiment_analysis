@@ -50,7 +50,7 @@ def analyze_sentiments(comments):
 # Streamlit UI
 st.title("YouTube Sentiment Analysis")
 
-video_input = st.text_input("Enter YouTube Video URL or ID:")
+video_input = st.text_input("Enter YouTube Video ID:")
 
 if st.button("Analyze Sentiment"):
     if not video_input:
