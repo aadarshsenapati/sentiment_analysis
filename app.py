@@ -13,7 +13,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 import joblib
 
-# Setup
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -21,11 +20,9 @@ nltk.download('wordnet')
 # Append NLTK data path if needed
 # nltk.data.path.append('C:/Users/chdnv/AppData/Roaming/nltk_data')
 
-# Initialize YouTube API
-api_key = "AIzaSyCedwduzFeJWNKvhLxu2SWgnnlrOBkm3Sc"  # Replace with your actual API key
+api_key = "AIzaSyCedwduzFeJWNKvhLxu2SWgnnlrOBkm3Sc"  
 youtube = build("youtube", "v3", developerKey=api_key)
 
-# Preprocessing Function
 def preprocess_text(text):
     if not isinstance(text, str):
         text = str(text)
@@ -55,7 +52,6 @@ def preprocess_text(text):
 
     return " ".join(tokens)
 
-# Get Comments Function
 def get_comments(video_id):
     comments = []
     try:
@@ -72,7 +68,6 @@ def get_comments(video_id):
         st.error(f"Error fetching comments: {e}")
     return comments
 
-# Load & Train Model (once)
 @st.cache_resource
 def train_model():
     imdb_df = pd.read_excel("train.xlsx")
@@ -93,7 +88,6 @@ def train_model():
 
 model, vectorizer = train_model()
 
-# Streamlit UI
 st.title("🎬 YouTube Comment Sentiment Analyzer")
 video_id = st.text_input("Enter YouTube Video ID", "")
 
@@ -107,13 +101,11 @@ if st.button("Analyze") and video_id:
             df["Sentiment"] = model.predict(X_youtube_tfidf)
             df["Sentiment"] = df["Sentiment"].map({1: "Positive", 0: "Negative"})
 
-            # Plot sentiment count
             st.subheader("📊 Sentiment Distribution")
             fig, ax = plt.subplots()
             sns.countplot(x=df["Sentiment"], palette="coolwarm", ax=ax)
             st.pyplot(fig)
 
-            # Show top 10 comments
             st.subheader("😊 Top 10 Positive Comments")
             for i, comment in enumerate(df[df["Sentiment"] == "Positive"]["Comment"].head(10), start=1):
                 st.write(f"{i}. {comment}")
