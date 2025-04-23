@@ -11,8 +11,11 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
 import joblib
-
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -83,10 +86,24 @@ def train_model():
 
     model = LogisticRegression()
     model.fit(X_vec, y)
+    hate_df = pd.read_csv("labeled_data.csv")
+    hate_df["Processed_tweet"] = hate_df["tweet"].apply(preprocess_text)
 
-    return model, vectorizer
+    X_hate = hate_df["Processed_tweet"]
+    y_hate = hate_df["class"]
 
-model, vectorizer = train_model()
+    X_train, X_test, y_train, y_test = train_test_split(X_hate, y_hate, test_size=0.2, random_state=42)
+
+    hate_model = Pipeline([
+        ("tfidf", TfidfVectorizer(stop_words="english", max_features=5000)),
+        ("clf", LinearSVC(max_iter=10000))
+    ])
+
+    hate_model.fit(X_train, y_train)
+
+    return model, vectorizer,hate_model
+
+model, vectorizer,hate_model = train_model()
 
 st.title("🎬 YouTube Comment Sentiment Analyzer")
 video_id = st.text_input("Enter YouTube Video ID", "")
@@ -100,6 +117,12 @@ if st.button("Analyze") and video_id:
             X_youtube_tfidf = vectorizer.transform(df["Processed_Review"])
             df["Sentiment"] = model.predict(X_youtube_tfidf)
             df["Sentiment"] = df["Sentiment"].map({1: "Positive", 0: "Negative"})
+            df["Speech Type"] = hate_model.predict(df["Processed_Review"])            
+            df["Speech Type"] = df["Speech Type"].map({
+                0: "Hate Speech",
+                1: "Offensive",
+                2: "Normal"
+            })
 
             st.subheader("📊 Sentiment Distribution")
             fig, ax = plt.subplots()
@@ -113,5 +136,7 @@ if st.button("Analyze") and video_id:
             st.subheader("😠 Top 10 Negative Comments")
             for i, comment in enumerate(df[df["Sentiment"] == "Negative"]["Comment"].head(10), start=1):
                 st.write(f"{i}. {comment}")
+            st.subheader(" Hate, Offensive Comments Detected are:")
+            st.write(df[df["Speech Type"] != "Normal"][["Comment", "Speech Type"]].head(5))
         else:
             st.warning("No comments found or unable to fetch comments.")
