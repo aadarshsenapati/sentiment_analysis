@@ -5,14 +5,22 @@ import re
 import nltk
 import os
 
-# Setup local NLTK data path
+# Setup local nltk_data folder
 nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
 nltk.data.path.append(nltk_data_path)
-for resource in ["punkt", "stopwords", "wordnet"]:
+
+# Safe download (only if missing)
+resources = {
+    "punkt": "tokenizers/punkt",
+    "stopwords": "corpora/stopwords",
+    "wordnet": "corpora/wordnet",
+}
+for resource_name, resource_path in resources.items():
     try:
-        nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
+        nltk.data.find(resource_path)
     except LookupError:
-        nltk.download(resource, download_dir=nltk_data_path)
+        nltk.download(resource_name, download_dir=nltk_data_path)
+
 
 import string
 import matplotlib.pyplot as plt
