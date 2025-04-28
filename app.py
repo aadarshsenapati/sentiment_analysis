@@ -3,9 +3,17 @@ from googleapiclient.discovery import build
 import pandas as pd
 import re
 import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+import os
+
+# Setup local NLTK data path
+nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
+nltk.data.path.append(nltk_data_path)
+for resource in ["punkt", "stopwords", "wordnet"]:
+    try:
+        nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
+    except LookupError:
+        nltk.download(resource, download_dir=nltk_data_path)
+
 import string
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,6 +27,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 import joblib
+
 
 
 # Append NLTK data path if needed
