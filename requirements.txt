@@ -1,2 +1,7 @@
 streamlit
 google-api-python-client
+nltk
+pandas
+matplotlib
+seaborn
+string
