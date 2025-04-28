@@ -3,6 +3,9 @@ from googleapiclient.discovery import build
 import pandas as pd
 import re
 import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 import string
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -16,9 +19,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 import joblib
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+
 
 # Append NLTK data path if needed
 # nltk.data.path.append('C:/Users/chdnv/AppData/Roaming/nltk_data')
